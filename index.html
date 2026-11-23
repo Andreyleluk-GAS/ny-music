@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1033">
+<title>Новогодний вайб 🎄</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="snow" aria-hidden="true"></canvas>
+<header class="header">
+  <ul class="lights" id="lights" aria-hidden="true"></ul>
+  <div class="head-row">
+    <div>
+      <h1>Новогодний вайб 🎄</h1>
+      <p class="sub">Жми на трек — и включай праздник</p>
+    </div>
+    <button id="snowBtn" class="icon-btn" aria-label="Снег вкл/выкл">❄️</button>
+  </div>
+</header>
+<main>
+  <ul id="list" class="list"></ul>
+  <p id="err" class="err" hidden></p>
+</main>
+<footer id="player" class="player" hidden>
+  <div class="p-top">
+    <div class="p-cover" id="pCover">🎄</div>
+    <div class="p-info"><div id="pTitle" class="p-title"></div><div id="pArtist" class="p-artist"></div></div>
+  </div>
+  <div class="p-bar">
+    <span id="tCur">0:00</span>
+    <input type="range" id="seek" min="0" max="1000" value="0" aria-label="Перемотка">
+    <span id="tDur">0:00</span>
+  </div>
+  <div class="p-ctrl">
+    <button id="shuffle" class="icon-btn" aria-label="Случайный трек">🔀</button>
+    <button id="prev" class="icon-btn" aria-label="Предыдущий">⏮</button>
+    <button id="play" class="icon-btn big" aria-label="Play/Pause">▶</button>
+    <button id="next" class="icon-btn" aria-label="Следующий">⏭</button>
+  </div>
+</footer>
+<audio id="audio" preload="none" playsinline></audio>
+<script src="app.js"></script>
+</body>
+</html>

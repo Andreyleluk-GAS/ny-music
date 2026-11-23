@@ -1,0 +1,7 @@
+[
+  { "id": "t1", "title": "Jingle Bells", "artist": "Заглушка", "file": "audio/track1.mp3", "emoji": "🎄" },
+  { "id": "t2", "title": "Снежный вечер", "artist": "Заглушка", "file": "audio/track2.mp3", "emoji": "❄️" },
+  { "id": "t3", "title": "Снеговик", "artist": "Заглушка", "file": "audio/track3.mp3", "emoji": "☃️" },
+  { "id": "t4", "title": "Рок под ёлкой", "artist": "Заглушка", "file": "audio/track4.mp3", "emoji": "🎸" },
+  { "id": "t5", "title": "Новогодняя ночь", "artist": "Заглушка", "file": "audio/track5.mp3", "emoji": "🎆" }
+]
