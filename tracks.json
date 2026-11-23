@@ -11,5 +11,8 @@
   { "id": "t10", "title": "Let It Snow! Let It Snow! Let It Snow!", "artist": "Frank Sinatra", "file": "audio/track10.mp3", "emoji": "🌨️" },
   { "id": "t11", "title": "Rockin' Around The Christmas Tree", "artist": "Brenda Lee", "file": "audio/track11.mp3", "emoji": "🦌" },
   { "id": "t12", "title": "Happy New Year", "artist": "Abba", "file": "audio/track12.mp3", "emoji": "🎆" },
-  { "id": "t13", "title": "Новый год", "artist": "МалыШарики", "file": "audio/track13.mp3", "emoji": "✨" }
+  { "id": "t13", "title": "Новый год", "artist": "Малышарики", "file": "audio/track13.mp3", "emoji": "✨" },
+  { "id": "t14", "title": "Новый год", "artist": "Волшебники двора", "file": "audio/track14.mp3", "emoji": "🎇" },
+  { "id": "t15", "title": "Новый год", "artist": "Детский хор «Великан»", "file": "audio/track15.mp3", "emoji": "🎊" },
+  { "id": "t16", "title": "Российский Дед Мороз", "artist": "Улыбка", "file": "audio/track16.mp3", "emoji": "🧣" }
 ]
