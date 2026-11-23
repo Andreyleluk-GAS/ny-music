@@ -1,6 +1,6 @@
 [
   { "id": "t1", "title": "Little Fir Tree", "artist": "New Version", "file": "audio/track1.mp3", "emoji": "🎄" },
-  { "id": "t2", "title": "Новый год (1994)", "artist": "Красная Плесень", "file": "audio/track2.mp3", "emoji": "❄️" },
+  { "id": "t2", "title": "Звенит Январская Вьюга", "artist": "Нина Бродская", "file": "audio/track2.mp3", "emoji": "❄️" },
   { "id": "t3", "title": "Last Christmas", "artist": "George Michael", "file": "audio/track3.mp3", "emoji": "🎁" },
   { "id": "t4", "title": "Кабы не было зимы", "artist": "Валентина Толкунова", "file": "audio/track4.mp3", "emoji": "🛷" },
   { "id": "t5", "title": "All I Want For Christmas Is You", "artist": "Mariah Carey", "file": "audio/track5.mp3", "emoji": "🌟" },
