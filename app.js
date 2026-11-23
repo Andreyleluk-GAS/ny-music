@@ -14,8 +14,31 @@ let tracks = [], cur = -1;
 const Store = {
   mine: () => JSON.parse(localStorage.getItem('ny_mine') || '{}'),      // {trackId: type}
   counts: () => JSON.parse(localStorage.getItem('ny_counts') || '{}'),
-  async loadCounts() { return this.counts(); },
+  client() {
+    let c = localStorage.getItem('ny_client');
+    if (!c) { c = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2)); localStorage.setItem('ny_client', c); }
+    return c;
+  },
+  async loadCounts() {
+    if (window.API_URL) try {
+      const r = await (await fetch(window.API_URL + '?client=' + this.client())).json();
+      localStorage.setItem('ny_mine', JSON.stringify(r.mine || {}));
+      localStorage.setItem('ny_counts', JSON.stringify(r.counts || {}));
+    } catch (e) { /* офлайн — берём кэш */ }
+    return this.counts();
+  },
   async sendReaction(id, type) {
+    if (window.API_URL) try {
+      const r = await (await fetch(window.API_URL, { method: 'POST', body: JSON.stringify({ id, type, client: this.client() }) })).json();
+      if (r.counts) {
+        const mine = this.mine(), counts = this.counts();
+        if (r.mine) mine[id] = r.mine; else delete mine[id];
+        counts[id] = r.counts;
+        localStorage.setItem('ny_mine', JSON.stringify(mine));
+        localStorage.setItem('ny_counts', JSON.stringify(counts));
+        return { mine: r.mine, counts: r.counts };
+      }
+    } catch (e) { /* сервер недоступен — локальный режим */ }
     const mine = this.mine(), counts = this.counts();
     const c = counts[id] = counts[id] || {};
     if (mine[id]) c[mine[id]] = Math.max(0, (c[mine[id]] || 1) - 1); // смена выбора
