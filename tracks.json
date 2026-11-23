@@ -7,8 +7,9 @@
   { "id": "t6", "title": "Snowman", "artist": "Sia", "file": "audio/track6.mp3", "emoji": "☃️" },
   { "id": "t7", "title": "Праздник к нам приходит (Coca-Cola cover)", "artist": "Клава Кока", "file": "audio/track7.mp3", "emoji": "🎅" },
   { "id": "t8", "title": "Jingle Bell Rock", "artist": "Bobby Helms", "file": "audio/track8.mp3", "emoji": "🔔" },
-  { "id": "t9", "title": "Новогодняя", "artist": "Дискотека Авария", "file": "audio/track9.mp3", "emoji": "🎉" },
+  { "id": "t9", "title": "Три Белых Коня", "artist": "Добры Молодцы", "file": "audio/track9.mp3", "emoji": "🎉" },
   { "id": "t10", "title": "Let It Snow! Let It Snow! Let It Snow!", "artist": "Frank Sinatra", "file": "audio/track10.mp3", "emoji": "🌨️" },
   { "id": "t11", "title": "Rockin' Around The Christmas Tree", "artist": "Brenda Lee", "file": "audio/track11.mp3", "emoji": "🦌" },
-  { "id": "t12", "title": "Happy New Year", "artist": "Abba", "file": "audio/track12.mp3", "emoji": "🎆" }
+  { "id": "t12", "title": "Happy New Year", "artist": "Abba", "file": "audio/track12.mp3", "emoji": "🎆" },
+  { "id": "t13", "title": "Новый год", "artist": "Малышарики", "file": "audio/track13.mp3", "emoji": "🎆" }
 ]
