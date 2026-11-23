@@ -18,6 +18,7 @@ async function getDriver() {
   return driver;
 }
 const res = (code, body) => ({ statusCode: code, headers: H, body: JSON.stringify(body) });
+const P = v => TypedValues.utf8(v);
 const ok = (s, max) => typeof s === 'string' && s.length > 0 && s.length <= max && /^[\w-]+$/.test(s);
 
 async function counts(session, id) {
@@ -78,4 +79,5 @@ module.exports.handler = async (event) => {
     return res(500, { error: 'server error', detail: String(e && e.message || e) });
   }
 };
+
 
