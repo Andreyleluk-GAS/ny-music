@@ -12,7 +12,10 @@ let driver;
 
 async function getDriver() {
   if (driver) return driver;
-  driver = new Driver({ endpoint: process.env.YDB_ENDPOINT, database: process.env.YDB_DATABASE,
+  let endpoint = (process.env.YDB_ENDPOINT || '').trim(), database = (process.env.YDB_DATABASE || '').trim();
+  const m = endpoint.match(/^(.*?)\/?\?database=(.*)$/); // допускаем полную строку из консоли
+  if (m) { endpoint = m[1]; if (!database) database = m[2]; }
+  driver = new Driver({ endpoint, database,
     authService: new MetadataAuthService() });
   if (!await driver.ready(10000)) throw new Error('YDB not ready');
   return driver;
@@ -79,5 +82,6 @@ module.exports.handler = async (event) => {
     return res(500, { error: 'server error', detail: String(e && e.message || e) });
   }
 };
+
 
 
