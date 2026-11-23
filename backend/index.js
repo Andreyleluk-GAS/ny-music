@@ -1,9 +1,9 @@
-// Yandex Cloud Function (Node.js 18+) — API реакций поверх YDB.
+﻿// Yandex Cloud Function (Node.js 18+) — API реакций поверх YDB.
 // Переменные окружения: YDB_ENDPOINT (grpcs://ydb.serverless.yandexcloud.net:2135), YDB_DATABASE (/ru-central1/b1g.../etn...)
 // Таблица: reactions (track_id Utf8, client_id Utf8, type Utf8, PRIMARY KEY (track_id, client_id))
 // GET  /?client=UUID            -> { counts: {trackId:{fire,tree,snow}}, mine: {trackId:type} }
 // POST /  {id, type, client}    -> { mine, counts } (повтор того же type снимает реакцию)
-const { Driver, MetadataAuthService, getCredentialsFromEnv } = require('ydb-sdk');
+const { Driver, MetadataAuthService, TypedValues } = require('ydb-sdk');
 
 const TYPES = ['fire', 'tree', 'snow'];
 const H = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*',
@@ -24,16 +24,15 @@ async function counts(session, id) {
   const where = id ? 'WHERE track_id = $id' : '';
   const q = `${id ? 'DECLARE $id AS Utf8;' : ''}
     SELECT track_id, type, COUNT(*) AS c FROM reactions ${where} GROUP BY track_id, type;`;
-  const { resultSets } = await session.executeQuery(q, id ? { $id: { type: { typeId: 'UTF8' }, value: { textValue: id } } } : undefined);
+  const { resultSets } = await session.executeQuery(q, id ? { $id: P(id) } : {});
   const out = {};
   for (const r of resultSets[0].rows) {
-    const t = r.items[0].textValue, ty = r.items[1].textValue, c = Number(r.items[2].uint64Value);
+    const t = r.items[0].textValue, ty = r.items[1].textValue, c = Number(String(r.items[2].uint64Value));
     (out[t] = out[t] || {})[ty] = c;
   }
   return out;
 }
 
-const P = v => ({ type: { typeId: 'UTF8' }, value: { textValue: v } });
 
 module.exports.handler = async (event) => {
   const method = event.httpMethod;
@@ -76,6 +75,7 @@ module.exports.handler = async (event) => {
     return res(405, { error: 'method not allowed' });
   } catch (e) {
     console.error(e);
-    return res(500, { error: 'server error' });
+    return res(500, { error: 'server error', detail: String(e && e.message || e) });
   }
 };
+
