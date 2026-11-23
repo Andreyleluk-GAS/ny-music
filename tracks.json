@@ -1,7 +1,14 @@
 [
-  { "id": "t1", "title": "Jingle Bells", "artist": "Заглушка", "file": "audio/t1.mp3", "emoji": "🎄" },
-  { "id": "t2", "title": "Снежный вечер", "artist": "Заглушка", "file": "audio/track2.mp3", "emoji": "❄️" },
-  { "id": "t3", "title": "Снеговик", "artist": "Заглушка", "file": "audio/track3.mp3", "emoji": "☃️" },
-  { "id": "t4", "title": "Рок под ёлкой", "artist": "Заглушка", "file": "audio/track4.mp3", "emoji": "🎸" },
-  { "id": "t5", "title": "Новогодняя ночь", "artist": "Заглушка", "file": "audio/track5.mp3", "emoji": "🎆" }
+  { "id": "t1", "title": "Little Fir Tree", "artist": "New Version", "file": "audio/track1.mp3", "emoji": "🎄" },
+  { "id": "t2", "title": "Новый год (1994)", "artist": "Красная Плесень", "file": "audio/track2.mp3", "emoji": "❄️" },
+  { "id": "t3", "title": "Last Christmas", "artist": "George Michael", "file": "audio/track3.mp3", "emoji": "🎁" },
+  { "id": "t4", "title": "Кабы не было зимы", "artist": "Валентина Толкунова", "file": "audio/track4.mp3", "emoji": "🛷" },
+  { "id": "t5", "title": "All I Want For Christmas Is You", "artist": "Mariah Carey", "file": "audio/track5.mp3", "emoji": "🌟" },
+  { "id": "t6", "title": "Snowman", "artist": "Sia", "file": "audio/track6.mp3", "emoji": "☃️" },
+  { "id": "t7", "title": "Праздник к нам приходит (Coca-Cola cover)", "artist": "Клава Кока", "file": "audio/track7.mp3", "emoji": "🎅" },
+  { "id": "t8", "title": "Jingle Bell Rock", "artist": "Bobby Helms", "file": "audio/track8.mp3", "emoji": "🔔" },
+  { "id": "t9", "title": "Новогодняя", "artist": "Дискотека Авария", "file": "audio/track9.mp3", "emoji": "🎉" },
+  { "id": "t10", "title": "Let It Snow! Let It Snow! Let It Snow!", "artist": "Frank Sinatra", "file": "audio/track10.mp3", "emoji": "🌨️" },
+  { "id": "t11", "title": "Rockin' Around The Christmas Tree", "artist": "Brenda Lee", "file": "audio/track11.mp3", "emoji": "🦌" },
+  { "id": "t12", "title": "Happy New Year", "artist": "Abba", "file": "audio/track12.mp3", "emoji": "🎆" }
 ]
