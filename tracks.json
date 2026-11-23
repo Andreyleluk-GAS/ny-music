@@ -1,18 +1,114 @@
 [
-  { "id": "t1", "title": "Little Fir Tree", "artist": "New Version", "file": "audio/track1.mp3", "emoji": "🎄" },
-  { "id": "t2", "title": "Звенит Январская Вьюга", "artist": "Нина Бродская", "file": "audio/track2.mp3", "emoji": "❄️" },
-  { "id": "t3", "title": "Last Christmas", "artist": "George Michael", "file": "audio/track3.mp3", "emoji": "🎁" },
-  { "id": "t4", "title": "Кабы не было зимы", "artist": "Валентина Толкунова", "file": "audio/track4.mp3", "emoji": "🛷" },
-  { "id": "t5", "title": "All I Want For Christmas Is You", "artist": "Mariah Carey", "file": "audio/track5.mp3", "emoji": "🌟" },
-  { "id": "t6", "title": "Snowman", "artist": "Sia", "file": "audio/track6.mp3", "emoji": "☃️" },
-  { "id": "t7", "title": "Праздник к нам приходит (Coca-Cola cover)", "artist": "Клава Кока", "file": "audio/track7.mp3", "emoji": "🎅" },
-  { "id": "t8", "title": "Jingle Bell Rock", "artist": "Bobby Helms", "file": "audio/track8.mp3", "emoji": "🔔" },
-  { "id": "t9", "title": "Три Белых Коня", "artist": "Добры Молодцы", "file": "audio/track9.mp3", "emoji": "🎉" },
-  { "id": "t10", "title": "Let It Snow! Let It Snow! Let It Snow!", "artist": "Frank Sinatra", "file": "audio/track10.mp3", "emoji": "🌨️" },
-  { "id": "t11", "title": "Rockin' Around The Christmas Tree", "artist": "Brenda Lee", "file": "audio/track11.mp3", "emoji": "🦌" },
-  { "id": "t12", "title": "Happy New Year", "artist": "Abba", "file": "audio/track12.mp3", "emoji": "🎆" },
-  { "id": "t13", "title": "Новый год", "artist": "Малышарики", "file": "audio/track13.mp3", "emoji": "✨" },
-  { "id": "t14", "title": "Новый год", "artist": "Волшебники двора", "file": "audio/track14.mp3", "emoji": "🎇" },
-  { "id": "t15", "title": "Новый год", "artist": "Детский хор «Великан»", "file": "audio/track15.mp3", "emoji": "🎊" },
-  { "id": "t16", "title": "Российский Дед Мороз", "artist": "Улыбка", "file": "audio/track16.mp3", "emoji": "🧣" }
+  {
+    "id": "t1",
+    "title": "Little Fir Tree",
+    "artist": "New Version",
+    "file": "audio/track1.mp3",
+    "emoji": "🎄"
+  },
+  {
+    "id": "t2",
+    "title": "Звенит Январская Вьюга",
+    "artist": "Нина Бродская",
+    "file": "audio/track2.mp3",
+    "emoji": "❄️"
+  },
+  {
+    "id": "t3",
+    "title": "Last Christmas",
+    "artist": "George Michael",
+    "file": "audio/track3.mp3",
+    "emoji": "🎁"
+  },
+  {
+    "id": "t4",
+    "title": "Кабы не было зимы",
+    "artist": "Валентина Толкунова",
+    "file": "audio/track4.mp3",
+    "emoji": "🛷"
+  },
+  {
+    "id": "t5",
+    "title": "All I Want For Christmas Is You",
+    "artist": "Mariah Carey",
+    "file": "audio/track5.mp3",
+    "emoji": "🌟"
+  },
+  {
+    "id": "t6",
+    "title": "Новый год",
+    "artist": "Малышарики",
+    "file": "audio/track6.mp3",
+    "emoji": "✨"
+  },
+  {
+    "id": "t7",
+    "title": "Snowman",
+    "artist": "Sia",
+    "file": "audio/track7.mp3",
+    "emoji": "☃️"
+  },
+  {
+    "id": "t8",
+    "title": "Праздник к нам приходит (Coca-Cola cover)",
+    "artist": "Клава Кока",
+    "file": "audio/track8.mp3",
+    "emoji": "🎅"
+  },
+  {
+    "id": "t9",
+    "title": "Jingle Bell Rock",
+    "artist": "Bobby Helms",
+    "file": "audio/track9.mp3",
+    "emoji": "🔔"
+  },
+  {
+    "id": "t10",
+    "title": "Три Белых Коня",
+    "artist": "Добры Молодцы",
+    "file": "audio/track10.mp3",
+    "emoji": "🎉"
+  },
+  {
+    "id": "t11",
+    "title": "Let It Snow! Let It Snow! Let It Snow!",
+    "artist": "Frank Sinatra",
+    "file": "audio/track11.mp3",
+    "emoji": "🌨️"
+  },
+  {
+    "id": "t12",
+    "title": "Новый год",
+    "artist": "Детский хор «Великан»",
+    "file": "audio/track12.mp3",
+    "emoji": "🎊"
+  },
+  {
+    "id": "t13",
+    "title": "Rockin' Around The Christmas Tree",
+    "artist": "Brenda Lee",
+    "file": "audio/track13.mp3",
+    "emoji": "🦌"
+  },
+  {
+    "id": "t14",
+    "title": "Российский Дед Мороз",
+    "artist": "Улыбка",
+    "file": "audio/track14.mp3",
+    "emoji": "🧣"
+  },
+  {
+    "id": "t15",
+    "title": "Happy New Year",
+    "artist": "Abba",
+    "file": "audio/track15.mp3",
+    "emoji": "⛸️"
+  },
+  {
+    "id": "t16",
+    "title": "Новый год",
+    "artist": "Волшебники двора",
+    "file": "audio/track16.mp3",
+    "emoji": "🎇"
+  }
 ]
