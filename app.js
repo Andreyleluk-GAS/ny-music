@@ -87,6 +87,28 @@ async function init() {
     });
     li.append(row, rs); list.appendChild(li);
   });
+  startLiveCounts();
+}
+
+/* Живое обновление: раз в 10 с подтягиваем суммарные счётчики со всех устройств */
+let busy = false;
+async function refreshCounts() {
+  if (busy || !window.API_URL || document.hidden) return;
+  busy = true;
+  try {
+    const counts = await Store.loadCounts(), mine = Store.mine();
+    tracks.forEach((t, i) => {
+      document.querySelectorAll('#c' + i + ' .react').forEach((x, n) => {
+        x.textContent = `${REACTS[n][1]} ${(counts[t.id] || {})[x.dataset.k] || 0}`;
+        x.classList.toggle('on', mine[t.id] === x.dataset.k);
+      });
+    });
+  } finally { busy = false; }
+}
+function startLiveCounts() {
+  if (!window.API_URL) return;
+  setInterval(refreshCounts, 10000);
+  document.addEventListener('visibilitychange', refreshCounts);
 }
 
 function burst(emoji, x, y) {
