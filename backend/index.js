@@ -8,7 +8,9 @@ const { Driver, MetadataAuthService, TypedValues } = require('ydb-sdk');
 const TYPES = ['fire', 'tree', 'snow'];
 const H = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS' };
+const COUNTS_TTL_MS = 8000;
 let driver;
+let countsCache = { data: null, ts: 0 };
 
 async function getDriver() {
   if (driver) return driver;
@@ -23,20 +25,46 @@ async function getDriver() {
 const res = (code, body) => ({ statusCode: code, headers: H, body: JSON.stringify(body) });
 const P = v => TypedValues.utf8(v);
 const ok = (s, max) => typeof s === 'string' && s.length > 0 && s.length <= max && /^[\w-]+$/.test(s);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-async function counts(session, id) {
-  const where = id ? 'WHERE track_id = $id' : '';
-  const q = `${id ? 'DECLARE $id AS Utf8;' : ''}
-    SELECT track_id, type, COUNT(*) AS c FROM reactions ${where} GROUP BY track_id, type;`;
-  const { resultSets } = await session.executeQuery(q, id ? { $id: P(id) } : {});
+function parseCounts(resultSet) {
   const out = {};
-  for (const r of resultSets[0].rows) {
+  for (const r of resultSet.rows) {
     const t = r.items[0].textValue, ty = r.items[1].textValue, c = Number(String(r.items[2].uint64Value));
     (out[t] = out[t] || {})[ty] = c;
   }
   return out;
 }
 
+function parseMine(resultSet) {
+  const mine = {};
+  for (const r of resultSet.rows) mine[r.items[0].textValue] = r.items[1].textValue;
+  return mine;
+}
+
+async function withRetry(fn) {
+  const delays = [0, 250, 650];
+  let lastErr;
+  for (let i = 0; i < delays.length; i++) {
+    if (delays[i]) await sleep(delays[i]);
+    try {
+      return await fn();
+    } catch (e) {
+      lastErr = e;
+      const msg = String(e && e.message || e);
+      if (!/RESOURCE_EXHAUSTED|OVERLOADED|UNAVAILABLE|ABORTED/i.test(msg)) throw e;
+    }
+  }
+  throw lastErr;
+}
+
+async function counts(session, id) {
+  const where = id ? 'WHERE track_id = $id' : '';
+  const q = `${id ? 'DECLARE $id AS Utf8;' : ''}
+    SELECT track_id, type, COUNT(*) AS c FROM reactions ${where} GROUP BY track_id, type;`;
+  const { resultSets } = await session.executeQuery(q, id ? { $id: P(id) } : {});
+  return parseCounts(resultSets[0]);
+}
 
 module.exports.handler = async (event) => {
   const method = event.httpMethod;
@@ -45,25 +73,50 @@ module.exports.handler = async (event) => {
     const d = await getDriver();
     if (method === 'GET') {
       const client = (event.queryStringParameters || {}).client;
-      return await d.tableClient.withSession(async s => {
-        const all = await counts(s);
-        let mine = {};
-        if (ok(client, 64)) {
+      const hasClient = ok(client, 64);
+      const cacheFresh = countsCache.data && (Date.now() - countsCache.ts < COUNTS_TTL_MS);
+
+      if (cacheFresh && !hasClient) {
+        return res(200, { counts: countsCache.data, mine: {} });
+      }
+
+      return await withRetry(() => d.tableClient.withSession(async s => {
+        if (cacheFresh && hasClient) {
           const { resultSets } = await s.executeQuery(
-            'DECLARE $c AS Utf8; SELECT track_id, type FROM reactions WHERE client_id = $c;', { $c: P(client) });
-          for (const r of resultSets[0].rows) mine[r.items[0].textValue] = r.items[1].textValue;
+            'DECLARE $c AS Utf8; SELECT track_id, type FROM reactions WHERE client_id = $c;',
+            { $c: P(client) }
+          );
+          return res(200, { counts: countsCache.data, mine: parseMine(resultSets[0]) });
         }
-        return res(200, { counts: all, mine });
-      });
+
+        if (hasClient) {
+          // Объединённый запрос (1 round-trip вместо 2)
+          const { resultSets } = await s.executeQuery(
+            'DECLARE $c AS Utf8;' +
+            'SELECT track_id, type, COUNT(*) AS c FROM reactions GROUP BY track_id, type;' +
+            'SELECT track_id, type FROM reactions WHERE client_id = $c;',
+            { $c: P(client) }
+          );
+          const all = parseCounts(resultSets[0]);
+          countsCache = { data: all, ts: Date.now() };
+          return res(200, { counts: all, mine: parseMine(resultSets[1]) });
+        }
+
+        const all = await counts(s);
+        countsCache = { data: all, ts: Date.now() };
+        return res(200, { counts: all, mine: {} });
+      }));
     }
     if (method === 'POST') {
       const b = JSON.parse(event.isBase64Encoded ? Buffer.from(event.body, 'base64').toString() : event.body || '{}');
       if (!ok(b.id, 64) || !ok(b.client, 64) || !TYPES.includes(b.type)) return res(400, { error: 'bad request' });
-      return await d.tableClient.withSession(async s => {
+      return await withRetry(() => d.tableClient.withSession(async s => {
         const p = { $id: P(b.id), $c: P(b.client), $t: P(b.type) };
         const decl = 'DECLARE $id AS Utf8; DECLARE $c AS Utf8; DECLARE $t AS Utf8;';
         const { resultSets } = await s.executeQuery(
-          'DECLARE $id AS Utf8; DECLARE $c AS Utf8; SELECT type FROM reactions WHERE track_id=$id AND client_id=$c;', { $id: p.$id, $c: p.$c });
+          'DECLARE $id AS Utf8; DECLARE $c AS Utf8; SELECT type FROM reactions WHERE track_id=$id AND client_id=$c;',
+          { $id: p.$id, $c: p.$c }
+        );
         const prev = resultSets[0].rows[0] && resultSets[0].rows[0].items[0].textValue;
         let mine;
         if (prev === b.type) {
@@ -73,8 +126,10 @@ module.exports.handler = async (event) => {
           mine = b.type;
         }
         const all = await counts(s, b.id);
-        return res(200, { mine, counts: all[b.id] || {} });
-      });
+        const trackCounts = all[b.id] || {};
+        if (countsCache.data) countsCache.data[b.id] = trackCounts;
+        return res(200, { mine, counts: trackCounts });
+      }));
     }
     return res(405, { error: 'method not allowed' });
   } catch (e) {

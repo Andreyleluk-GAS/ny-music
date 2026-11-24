@@ -19,7 +19,10 @@ let userStarted = false, repeatOne = false, hasSwiped = false;
 let programmaticScroll = false, scrollLockTimer = null;
 
 /* ===== Реакции: хранилище (Yandex Cloud + localStorage кэш) ===== */
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 const Store = {
+  pending: new Set(),
+  lastLoadAt: 0,
   mine: () => JSON.parse(localStorage.getItem('ny_mine') || '{}'),
   counts: () => JSON.parse(localStorage.getItem('ny_counts') || '{}'),
   client() {
@@ -31,36 +34,58 @@ const Store = {
     return c;
   },
   async loadCounts() {
-    if (window.API_URL) try {
-      const r = await (await fetch(window.API_URL + '?client=' + this.client())).json();
-      localStorage.setItem('ny_mine', JSON.stringify(r.mine || {}));
-      localStorage.setItem('ny_counts', JSON.stringify(r.counts || {}));
+    if (window.API_URL && this.pending.size === 0) try {
+      const resp = await fetch(window.API_URL + '?client=' + this.client());
+      if (resp.ok) {
+        const r = await resp.json();
+        this.lastLoadAt = Date.now();
+        // Если пока шёл GET пользователь успел кликнуть реакцию — не затираем её
+        if (this.pending.size === 0) {
+          localStorage.setItem('ny_mine', JSON.stringify(r.mine || {}));
+          localStorage.setItem('ny_counts', JSON.stringify(r.counts || {}));
+        }
+      }
     } catch (e) { /* офлайн — берём кэш */ }
     return this.counts();
   },
   async sendReaction(id, type) {
-    if (window.API_URL) try {
-      const r = await (await fetch(window.API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ id, type, client: this.client() })
-      })).json();
-      if (r.counts) {
-        const mine = this.mine(), counts = this.counts();
-        if (r.mine) mine[id] = r.mine; else delete mine[id];
-        counts[id] = r.counts;
-        localStorage.setItem('ny_mine', JSON.stringify(mine));
-        localStorage.setItem('ny_counts', JSON.stringify(counts));
-        return { mine: r.mine, counts: r.counts };
+    this.pending.add(id);
+    try {
+      if (window.API_URL) {
+        const delays = [0, 600, 1400];
+        for (let attempt = 0; attempt < delays.length; attempt++) {
+          if (delays[attempt]) await sleep(delays[attempt]);
+          try {
+            const resp = await fetch(window.API_URL, {
+              method: 'POST',
+              body: JSON.stringify({ id, type, client: this.client() })
+            });
+            if (resp.ok) {
+              const r = await resp.json();
+              if (r.counts) {
+                const mine = this.mine(), counts = this.counts();
+                if (r.mine) mine[id] = r.mine; else delete mine[id];
+                counts[id] = r.counts;
+                localStorage.setItem('ny_mine', JSON.stringify(mine));
+                localStorage.setItem('ny_counts', JSON.stringify(counts));
+                return { mine: r.mine, counts: r.counts };
+              }
+            }
+            if (resp.status < 500 && resp.status !== 429) break;
+          } catch (e) { /* повторим попытку */ }
+        }
       }
-    } catch (e) { /* сервер недоступен — локальный режим */ }
-    const mine = this.mine(), counts = this.counts();
-    const c = counts[id] = counts[id] || {};
-    if (mine[id]) c[mine[id]] = Math.max(0, (c[mine[id]] || 1) - 1);
-    if (mine[id] === type) delete mine[id];
-    else { mine[id] = type; c[type] = (c[type] || 0) + 1; }
-    localStorage.setItem('ny_mine', JSON.stringify(mine));
-    localStorage.setItem('ny_counts', JSON.stringify(counts));
-    return { mine: mine[id], counts: c };
+      const mine = this.mine(), counts = this.counts();
+      const c = counts[id] = counts[id] || {};
+      if (mine[id]) c[mine[id]] = Math.max(0, (c[mine[id]] || 1) - 1);
+      if (mine[id] === type) delete mine[id];
+      else { mine[id] = type; c[type] = (c[type] || 0) + 1; }
+      localStorage.setItem('ny_mine', JSON.stringify(mine));
+      localStorage.setItem('ny_counts', JSON.stringify(counts));
+      return { mine: mine[id], counts: c };
+    } finally {
+      this.pending.delete(id);
+    }
   }
 };
 
@@ -403,7 +428,7 @@ function scrollToSlide(i, instant = false) {
   if (!s) return;
   programmaticScroll = true;
   clearTimeout(scrollLockTimer);
-  s.el.scrollIntoView({ behavior: instant ? 'auto' : 'smooth', block: 'start' });
+  feedEl.scrollTo({ top: s.el.offsetTop, behavior: instant ? 'auto' : 'smooth' });
   visibleIdx = i;
   highlightStory(i);
   scrollLockTimer = setTimeout(() => { programmaticScroll = false; }, 560);
@@ -451,8 +476,10 @@ function highlightStory(idx) {
     b.classList.toggle('current', n === idx);
     b.classList.toggle('playing', n === cur && isActivePlaying());
   });
-  if (currentSkin === 'gram' && storyBtns[idx]) {
-    storyBtns[idx].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  const btn = storyBtns[idx];
+  if (currentSkin === 'gram' && btn) {
+    const targetLeft = btn.offsetLeft - (storiesEl.clientWidth - btn.offsetWidth) / 2;
+    storiesEl.scrollTo({ left: Math.max(0, targetLeft), behavior: 'smooth' });
   }
   sheetItems.forEach((b, n) => b.classList.toggle('active', n === (cur >= 0 ? cur : idx)));
 }
@@ -480,6 +507,7 @@ function sync() {
 function setSkin(skin) {
   currentSkin = skin;
   const isGram = skin === 'gram';
+  document.documentElement.classList.toggle('skin-gram', isGram);
   document.body.classList.toggle('skin-classic', !isGram);
   document.body.classList.toggle('skin-gram', isGram);
   $('viewClassic').hidden = isGram;
@@ -487,6 +515,7 @@ function setSkin(skin) {
   closeSheet();
 
   if (isGram) {
+    window.scrollTo(0, 0);
     buildGramLights();
     const target = cur >= 0 ? cur : visibleIdx;
     requestAnimationFrame(() => {
@@ -1030,18 +1059,23 @@ async function init() {
 }
 
 let busy = false;
-async function refreshCounts() {
-  if (busy || !window.API_URL || document.hidden) return;
+async function refreshCounts(force = false) {
+  if (busy || !window.API_URL || document.hidden || Store.pending.size > 0) return;
+  if (!force && Date.now() - Store.lastLoadAt < 15000) return;
   busy = true;
   try {
     const counts = await Store.loadCounts(), mine = Store.mine();
-    tracks.forEach((t, i) => updateTrackReacts(i, mine[t.id], counts[t.id]));
+    if (Store.pending.size === 0) {
+      tracks.forEach((t, i) => updateTrackReacts(i, mine[t.id], counts[t.id]));
+    }
   } finally { busy = false; }
 }
 function startLiveCounts() {
   if (!window.API_URL) return;
-  setInterval(refreshCounts, 10000);
-  document.addEventListener('visibilitychange', refreshCounts);
+  setInterval(() => refreshCounts(true), 40000);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) refreshCounts(false);
+  });
 }
 
 init();
